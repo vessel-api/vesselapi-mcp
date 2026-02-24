@@ -1,0 +1,53 @@
+{
+  "name": "vesselapi-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the VesselAPI — maritime vessel tracking, port events, emissions, and navigation data",
+  "license": "MIT",
+  "author": "VesselAPI",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vessel-api/vesselapi-mcp.git"
+  },
+  "homepage": "https://vesselapi.com",
+  "bugs": {
+    "url": "https://github.com/vessel-api/vesselapi-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "vesselapi",
+    "maritime",
+    "vessel",
+    "shipping",
+    "ais",
+    "vessel-tracking",
+    "port-events",
+    "emissions"
+  ],
+  "type": "module",
+  "bin": {
+    "vesselapi-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "vesselapi": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.5.0"
+  }
+}
