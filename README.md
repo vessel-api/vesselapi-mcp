@@ -1,6 +1,19 @@
 # VesselAPI MCP Server
 
+[![CI](https://github.com/vessel-api/vesselapi-mcp/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/vessel-api/vesselapi-mcp/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/vesselapi-mcp.svg)](https://www.npmjs.com/package/vesselapi-mcp)
+[![Node](https://img.shields.io/node/v/vesselapi-mcp.svg)](https://www.npmjs.com/package/vesselapi-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes maritime data from the [VesselAPI](https://vesselapi.com) to AI assistants like Claude Desktop, Cursor, Windsurf, and Claude Code.
+
+## Prerequisites
+
+1. Sign up at [dashboard.vesselapi.com](https://dashboard.vesselapi.com)
+2. Create an API token in your dashboard
+3. Use the token as `VESSELAPI_API_KEY` in the configuration below
+
+**Resources**: [Documentation](https://vesselapi.com/docs) | [API Explorer](https://vesselapi.com/api-reference) | [Dashboard](https://dashboard.vesselapi.com) | [Contact Support](mailto:support@vesselapi.com)
 
 ## Features
 
@@ -28,8 +41,6 @@ No installation required — just configure your AI client with `npx`:
   }
 }
 ```
-
-Get an API key at [vesselapi.com](https://vesselapi.com).
 
 ## Configuration
 
