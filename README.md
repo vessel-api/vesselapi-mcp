@@ -44,77 +44,14 @@ No installation required — just configure your AI client with `npx`:
 
 ## Configuration
 
-### Claude Desktop
+Add the JSON above to the config file for your client:
 
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "vesselapi": {
-      "command": "npx",
-      "args": ["-y", "vesselapi-mcp"],
-      "env": {
-        "VESSELAPI_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-### Cursor
-
-Add to `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` globally:
-
-```json
-{
-  "mcpServers": {
-    "vesselapi": {
-      "command": "npx",
-      "args": ["-y", "vesselapi-mcp"],
-      "env": {
-        "VESSELAPI_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-### Claude Code
-
-Add to `.claude/settings.json` in your project or `~/.claude/settings.json` globally:
-
-```json
-{
-  "mcpServers": {
-    "vesselapi": {
-      "command": "npx",
-      "args": ["-y", "vesselapi-mcp"],
-      "env": {
-        "VESSELAPI_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
-
-### Windsurf
-
-Add to `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "vesselapi": {
-      "command": "npx",
-      "args": ["-y", "vesselapi-mcp"],
-      "env": {
-        "VESSELAPI_API_KEY": "your-api-key"
-      }
-    }
-  }
-}
-```
+| Client | Config file |
+|---|---|
+| Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows) |
+| Cursor | `.cursor/mcp.json` or `~/.cursor/mcp.json` |
+| Claude Code | `.claude/settings.json` or `~/.claude/settings.json` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` |
 
 ## Tools
 
