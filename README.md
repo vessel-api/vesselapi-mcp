@@ -7,6 +7,10 @@
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes maritime data from the [VesselAPI](https://vesselapi.com) to AI assistants like Claude Desktop, Cursor, Windsurf, and Claude Code.
 
+<a href="https://glama.ai/mcp/servers/@vessel-api/vessel-api-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@vessel-api/vessel-api-mcp-server/badge" alt="VesselAPI Server MCP server" />
+</a>
+
 ## Prerequisites
 
 1. Sign up at [dashboard.vesselapi.com](https://dashboard.vesselapi.com)
