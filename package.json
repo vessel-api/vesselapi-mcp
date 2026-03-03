@@ -1,6 +1,6 @@
 {
   "name": "vesselapi-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "mcpName": "io.github.vessel-api/vesselapi-mcp",
   "description": "MCP server for the VesselAPI — maritime vessel tracking, port events, emissions, and navigation data",
   "license": "MIT",
