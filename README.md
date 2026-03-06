@@ -5,6 +5,10 @@
 [![Node](https://img.shields.io/node/v/vesselapi-mcp.svg)](https://www.npmjs.com/package/vesselapi-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
+<a href="https://glama.ai/mcp/servers/@vessel-api/vessel-api-mcp-server">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@vessel-api/vessel-api-mcp-server/badge" />
+</a>
+
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes maritime data from the [VesselAPI](https://vesselapi.com) to AI assistants like Claude Desktop, Cursor, Windsurf, and Claude Code.
 
 ## Prerequisites
