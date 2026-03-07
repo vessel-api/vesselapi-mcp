@@ -49,6 +49,35 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
   );
 
   server.tool(
+    "get_port_inbound",
+    "Get vessels heading to a specific port within an ETA arrival window",
+    {
+      unlocode: z.string().describe("UN/LOCODE of the destination port (e.g. NLRTM for Rotterdam)"),
+      etaFrom: z.string().describe("Start of ETA arrival window (RFC3339 format, e.g. 2026-03-07T00:00:00Z)"),
+      etaTo: z.string().describe("End of ETA arrival window (RFC3339 format, e.g. 2026-03-14T00:00:00Z)"),
+      timeFrom: z.string().optional().describe("AIS position time range start (RFC3339 format)"),
+      timeTo: z.string().optional().describe("AIS position time range end (RFC3339 format)"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.ports.inbound(params.unlocode, {
+          filterEtaFrom: params.etaFrom,
+          filterEtaTo: params.etaTo,
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
     "get_port_events",
     "Get port events (arrivals/departures) for a specific port",
     {
