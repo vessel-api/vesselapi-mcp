@@ -6,7 +6,7 @@ import { formatResult, handleToolError } from "../errors.js";
 export function registerVesselTools(server: McpServer, client: VesselClient): void {
   server.tool(
     "search_vessels",
-    "Search for vessels by name, IMO, MMSI, flag, type, or callsign",
+    "Search for vessels by name, IMO, MMSI, flag, type, callsign, year built, class society, or owner",
     {
       name: z.string().optional().describe("Vessel name (partial match)"),
       imo: z.string().optional().describe("IMO number"),
@@ -14,6 +14,10 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
       flag: z.string().optional().describe("Flag state (ISO country code)"),
       vesselType: z.string().optional().describe("Vessel type"),
       callsign: z.string().optional().describe("Radio callsign"),
+      yearBuiltMin: z.number().optional().describe("Minimum year built"),
+      yearBuiltMax: z.number().optional().describe("Maximum year built"),
+      classSociety: z.string().optional().describe("Classification society (case-insensitive)"),
+      owner: z.string().optional().describe("Owner name (partial match, case-insensitive)"),
       limit: z.number().optional().describe("Max results per page"),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
@@ -26,6 +30,10 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
           filterFlag: params.flag,
           filterVesselType: params.vesselType,
           filterCallsign: params.callsign,
+          filterYearBuiltMin: params.yearBuiltMin,
+          filterYearBuiltMax: params.yearBuiltMax,
+          filterClassSociety: params.classSociety,
+          filterOwner: params.owner,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });

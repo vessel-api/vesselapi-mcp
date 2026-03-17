@@ -6,12 +6,15 @@ import { formatResult, handleToolError } from "../errors.js";
 export function registerPortTools(server: McpServer, client: VesselClient): void {
   server.tool(
     "search_ports",
-    "Search for ports by name, country, type, or region",
+    "Search for ports by name, country, type, size, region, harbor size, or harbor use",
     {
       name: z.string().optional().describe("Port name (partial match)"),
       country: z.string().optional().describe("Country (ISO code)"),
-      portType: z.string().optional().describe("Port type"),
-      region: z.string().optional().describe("Geographic region"),
+      portType: z.string().optional().describe("Port type classification"),
+      size: z.string().optional().describe("Port size classification"),
+      region: z.string().optional().describe("Geographic region (partial match)"),
+      harborSize: z.string().optional().describe("Harbor size classification"),
+      harborUse: z.string().optional().describe("Primary harbor use"),
       limit: z.number().optional().describe("Max results per page"),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
@@ -21,7 +24,10 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
           filterName: params.name,
           filterCountry: params.country,
           filterPortType: params.portType,
+          filterSize: params.size,
           filterRegion: params.region,
+          filterHarborSize: params.harborSize,
+          filterHarborUse: params.harborUse,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });
@@ -105,6 +111,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
       eventType: z.string().optional().describe("Filter by event type (arrival, departure)"),
+      sortOrder: z.string().optional().describe("Sort order by timestamp (asc or desc)"),
       timeFrom: z.string().optional().describe("Start time (ISO 8601 format)"),
       timeTo: z.string().optional().describe("End time (ISO 8601 format)"),
       limit: z.number().optional().describe("Max results per page"),
@@ -115,6 +122,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
         const data = await client.portEvents.byVessel(params.vesselId, {
           filterIdType: params.idType,
           filterEventType: params.eventType,
+          filterSortOrder: params.sortOrder,
           timeFrom: params.timeFrom,
           timeTo: params.timeTo,
           paginationLimit: params.limit,

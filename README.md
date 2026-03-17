@@ -63,7 +63,7 @@ Add the JSON above to the config file for your client:
 
 | Tool | Description |
 |---|---|
-| `search_vessels` | Search vessels by name, IMO, MMSI, flag, type, or callsign |
+| `search_vessels` | Search vessels by name, IMO, MMSI, flag, type, callsign, year built, class society, or owner |
 | `get_vessel` | Get detailed vessel information |
 | `get_vessel_position` | Get current vessel position (lat/lon, speed, heading) |
 | `get_vessel_eta` | Get vessel estimated time of arrival |
@@ -77,7 +77,7 @@ Add the JSON above to the config file for your client:
 
 | Tool | Description |
 |---|---|
-| `search_ports` | Search ports by name, country, type, or region |
+| `search_ports` | Search ports by name, country, type, size, region, harbor size, or harbor use |
 | `get_port` | Get port details by UN/LOCODE |
 | `get_port_events` | Get arrivals/departures for a port |
 | `get_port_events_by_vessel` | Get port events for a vessel |
@@ -86,8 +86,8 @@ Add the JSON above to the config file for your client:
 
 | Tool | Description |
 |---|---|
-| `get_vessels_in_area` | Find vessels in a bounding box |
-| `get_vessels_in_radius` | Find vessels within a radius of a point |
+| `get_vessels_in_area` | Find vessels in a bounding box (with optional time range) |
+| `get_vessels_in_radius` | Find vessels within a radius of a point (with optional time range) |
 
 ### Safety Tools
 
