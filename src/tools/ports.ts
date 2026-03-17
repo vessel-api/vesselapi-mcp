@@ -134,4 +134,123 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
       }
     },
   );
+
+  server.tool(
+    "list_port_events",
+    "List port events (arrivals/departures) globally with optional filters for time, country, port, vessel, or event type",
+    {
+      timeFrom: z.string().optional().describe("Start time (RFC3339 format)"),
+      timeTo: z.string().optional().describe("End time (RFC3339 format)"),
+      country: z.string().optional().describe("Filter by port country (case-insensitive)"),
+      unlocode: z.string().optional().describe("Filter by port UN/LOCODE"),
+      eventType: z.string().optional().describe("Filter by event type (arrival, departure)"),
+      vesselName: z.string().optional().describe("Filter by vessel name (full-text search)"),
+      portName: z.string().optional().describe("Filter by port name (full-text search)"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.portEvents.list({
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
+          filterCountry: params.country,
+          filterUnlocode: params.unlocode,
+          filterEventType: params.eventType,
+          filterVesselName: params.vesselName,
+          filterPortName: params.portName,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "search_port_events_by_port",
+    "Search port events by port name",
+    {
+      portName: z.string().describe("Port name to search for"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.portEvents.byPorts({
+          filterPortName: params.portName,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "search_port_events_by_vessel",
+    "Search port events by vessel name",
+    {
+      vesselName: z.string().describe("Vessel name to search for"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.portEvents.byVessels({
+          filterVesselName: params.vesselName,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_vessel_last_port_event",
+    "Get the most recent port event (arrival or departure) for a vessel",
+    {
+      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
+      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+    },
+    async (params) => {
+      try {
+        const data = await client.portEvents.lastByVessel(params.vesselId, {
+          filterIdType: params.idType,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "list_emissions",
+    "List global vessel emissions data with optional year filter",
+    {
+      period: z.number().optional().describe("Reporting year filter (e.g. 2024)"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.emissions.list({
+          filterPeriod: params.period,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
 }

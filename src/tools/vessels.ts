@@ -207,4 +207,52 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
       }
     },
   );
+
+  server.tool(
+    "get_vessel_inspection_detail",
+    "Get detailed information about a specific vessel inspection",
+    {
+      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
+      detailId: z.string().describe("Inspection detail ID"),
+      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+    },
+    async (params) => {
+      try {
+        const data = await client.vessels.inspectionDetail(params.vesselId, params.detailId, {
+          filterIdType: params.idType,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_vessel_positions_batch",
+    "Get positions for multiple vessels at once by MMSI or IMO numbers",
+    {
+      ids: z.string().describe("Comma-separated list of MMSI or IMO numbers"),
+      idType: z.string().optional().describe("Identifier type: imo (default) or mmsi"),
+      timeFrom: z.string().optional().describe("Start time filter in RFC3339 format (defaults to 2 hours ago)"),
+      timeTo: z.string().optional().describe("End time filter in RFC3339 format (defaults to current time)"),
+      limit: z.number().optional().describe("Max results per page"),
+      nextToken: z.string().optional().describe("Pagination token from previous response"),
+    },
+    async (params) => {
+      try {
+        const data = await client.vessels.positions({
+          filterIds: params.ids,
+          filterIdType: params.idType,
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
+          paginationLimit: params.limit,
+          paginationNextToken: params.nextToken,
+        });
+        return formatResult(data);
+      } catch (error) {
+        return handleToolError(error);
+      }
+    },
+  );
 }

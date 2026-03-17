@@ -21,9 +21,9 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 ## Features
 
-- **16 tools** covering vessels, ports, location search, and maritime safety
-- Vessel search, positions, ETA, classification, ownership, emissions, inspections, and casualties
-- Port search, details, and port events (arrivals/departures)
+- **23 tools** covering vessels, ports, location search, emissions, and maritime safety
+- Vessel search, positions (single and batch), ETA, classification, ownership, emissions, inspections, and casualties
+- Port search, details, port events (arrivals/departures), and global port event search
 - Geographic vessel search (bounding box and radius)
 - NAVTEX maritime safety messages
 - Manual pagination to control API quota usage
@@ -72,6 +72,8 @@ Add the JSON above to the config file for your client:
 | `get_vessel_emissions` | Get emissions data (CO2, fuel consumption) |
 | `get_vessel_inspections` | Get port state control inspections |
 | `get_vessel_casualties` | Get marine casualty records |
+| `get_vessel_inspection_detail` | Get detailed information about a specific inspection |
+| `get_vessel_positions_batch` | Get positions for multiple vessels at once (with optional time range) |
 
 ### Port Tools
 
@@ -81,6 +83,16 @@ Add the JSON above to the config file for your client:
 | `get_port` | Get port details by UN/LOCODE |
 | `get_port_events` | Get arrivals/departures for a port |
 | `get_port_events_by_vessel` | Get port events for a vessel |
+| `list_port_events` | List port events globally with filters for time, country, port, vessel, or event type |
+| `search_port_events_by_port` | Search port events by port name |
+| `search_port_events_by_vessel` | Search port events by vessel name |
+| `get_vessel_last_port_event` | Get the most recent port event for a vessel |
+
+### Emissions Tools
+
+| Tool | Description |
+|---|---|
+| `list_emissions` | List global vessel emissions data with optional year filter |
 
 ### Location Tools
 
