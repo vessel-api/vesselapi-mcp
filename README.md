@@ -28,6 +28,10 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 - NAVTEX maritime safety messages
 - Manual pagination to control API quota usage
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/vessel-api-vesselapi-mcp).
+
 ## Quick Start
 
 No installation required — just configure your AI client with `npx`:
