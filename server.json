@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.vessel-api/vesselapi-mcp",
-  "description": "MCP server for the VesselAPI \u2014 maritime vessel tracking, port events and emissions",
+  "description": "MCP server for the VesselAPI: maritime vessel tracking, port events and emissions",
   "repository": {
     "url": "https://github.com/vessel-api/vesselapi-mcp.git",
     "source": "github"
