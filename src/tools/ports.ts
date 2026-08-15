@@ -15,7 +15,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
       region: z.string().optional().describe("Geographic region (partial match)"),
       harborSize: z.string().optional().describe("Harbor size classification"),
       harborUse: z.string().optional().describe("Primary harbor use"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -59,11 +59,11 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
     "Get vessels heading to a specific port within an ETA arrival window",
     {
       unlocode: z.string().describe("UN/LOCODE of the destination port (e.g. NLRTM for Rotterdam)"),
-      etaFrom: z.string().describe("Start of ETA arrival window (RFC3339 format, e.g. 2026-03-07T00:00:00Z)"),
-      etaTo: z.string().describe("End of ETA arrival window (RFC3339 format, e.g. 2026-03-14T00:00:00Z)"),
+      etaFrom: z.string().optional().describe("Start of ETA arrival window (RFC3339). Omit to default to now."),
+      etaTo: z.string().optional().describe("End of ETA arrival window (RFC3339). Omit to default to 72 hours ahead."),
       timeFrom: z.string().optional().describe("AIS position time range start (RFC3339 format)"),
       timeTo: z.string().optional().describe("AIS position time range end (RFC3339 format)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -85,15 +85,19 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "get_port_events",
-    "Get port events (arrivals/departures) for a specific port",
+    "Get port events (arrivals/departures) for a specific port. Covers only the last 2 hours unless timeFrom is given.",
     {
       unlocode: z.string().describe("UN/LOCODE of the port"),
-      limit: z.number().optional().describe("Max results per page"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Without it the service returns only the last 2 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now."),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
       try {
         const data = await client.portEvents.byPort(params.unlocode, {
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });
@@ -109,12 +113,12 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
     "Get port events (arrivals/departures) for a specific vessel",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-      eventType: z.string().optional().describe("Filter by event type (arrival, departure)"),
-      sortOrder: z.string().optional().describe("Sort order by timestamp (asc or desc)"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
+      eventType: z.enum(["arrival", "departure", "all"]).optional().describe("Filter by event type. Omit for both arrivals and departures"),
+      sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort order by timestamp"),
       timeFrom: z.string().optional().describe("Start time (ISO 8601 format)"),
       timeTo: z.string().optional().describe("End time (ISO 8601 format)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -143,10 +147,10 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
       timeTo: z.string().optional().describe("End time (RFC3339 format)"),
       country: z.string().optional().describe("Filter by port country (case-insensitive)"),
       unlocode: z.string().optional().describe("Filter by port UN/LOCODE"),
-      eventType: z.string().optional().describe("Filter by event type (arrival, departure)"),
+      eventType: z.enum(["arrival", "departure", "all"]).optional().describe("Filter by event type. Omit for both arrivals and departures"),
       vesselName: z.string().optional().describe("Filter by vessel name (full-text search)"),
       portName: z.string().optional().describe("Filter by port name (full-text search)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -171,16 +175,20 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "search_port_events_by_port",
-    "Search port events by port name",
+    "Search port events by port name. Covers only the last 2 hours unless timeFrom is given.",
     {
       portName: z.string().describe("Port name to search for"),
-      limit: z.number().optional().describe("Max results per page"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Without it the service returns only the last 2 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now."),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
       try {
         const data = await client.portEvents.byPorts({
           filterPortName: params.portName,
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });
@@ -193,16 +201,20 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "search_port_events_by_vessel",
-    "Search port events by vessel name",
+    "Search port events by vessel name. Covers only the last 2 hours unless timeFrom is given.",
     {
       vesselName: z.string().describe("Vessel name to search for"),
-      limit: z.number().optional().describe("Max results per page"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Without it the service returns only the last 2 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now."),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
       try {
         const data = await client.portEvents.byVessels({
           filterVesselName: params.vesselName,
+          timeFrom: params.timeFrom,
+          timeTo: params.timeTo,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });
@@ -218,7 +230,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
     "Get the most recent port event (arrival or departure) for a vessel",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
     },
     async (params) => {
       try {
@@ -237,7 +249,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
     "List global vessel emissions data with optional year filter",
     {
       period: z.number().optional().describe("Reporting year filter (e.g. 2024)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {

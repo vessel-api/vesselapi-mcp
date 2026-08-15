@@ -12,9 +12,9 @@ export function registerLocationTools(server: McpServer, client: VesselClient): 
       latMax: z.number().describe("Northern boundary latitude"),
       lonMin: z.number().describe("Western boundary longitude"),
       lonMax: z.number().describe("Eastern boundary longitude"),
-      timeFrom: z.string().optional().describe("Start time filter in RFC3339 format (defaults to 2 hours ago)"),
-      timeTo: z.string().optional().describe("End time filter in RFC3339 format (defaults to current time)"),
-      limit: z.number().optional().describe("Max results per page"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Defaults to 2 hours ago. The window may not exceed 4 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now. The window may not exceed 4 hours."),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -38,14 +38,14 @@ export function registerLocationTools(server: McpServer, client: VesselClient): 
 
   server.tool(
     "get_vessels_in_radius",
-    "Find all vessels within a radius (in nautical miles) of a point",
+    "Find all vessels within a radius of a point. The radius is in METRES, not nautical miles or kilometres.",
     {
       latitude: z.number().describe("Center latitude"),
       longitude: z.number().describe("Center longitude"),
-      radius: z.number().describe("Radius in nautical miles"),
-      timeFrom: z.string().optional().describe("Start time filter in RFC3339 format (defaults to 2 hours ago)"),
-      timeTo: z.string().optional().describe("End time filter in RFC3339 format (defaults to current time)"),
-      limit: z.number().optional().describe("Max results per page"),
+      radius: z.number().describe("Search radius in METRES, maximum 100000 (100 km). One nautical mile is 1852 metres."),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Defaults to 2 hours ago. The window may not exceed 4 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now. The window may not exceed 4 hours."),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {

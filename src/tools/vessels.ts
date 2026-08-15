@@ -6,24 +6,26 @@ import { formatResult, handleToolError } from "../errors.js";
 export function registerVesselTools(server: McpServer, client: VesselClient): void {
   server.tool(
     "search_vessels",
-    "Search for vessels by name, IMO, MMSI, flag, type, callsign, year built, class society, or owner",
+    "Search for vessels. Use q when you have an identifier but do not know which kind it is; use the specific filters to narrow a fleet.",
     {
+      q: z.string().optional().describe("Free-text search across name, IMO, MMSI, ENI and callsign. Use this when the type of identifier is unknown."),
       name: z.string().optional().describe("Vessel name (partial match)"),
       imo: z.string().optional().describe("IMO number"),
       mmsi: z.string().optional().describe("MMSI number"),
+      eni: z.string().optional().describe("ENI number, used for inland waterway vessels"),
       flag: z.string().optional().describe("Flag state (ISO country code)"),
       vesselType: z.string().optional().describe("Vessel type"),
       callsign: z.string().optional().describe("Radio callsign"),
       yearBuiltMin: z.number().optional().describe("Minimum year built"),
       yearBuiltMax: z.number().optional().describe("Maximum year built"),
-      classSociety: z.string().optional().describe("Classification society (case-insensitive)"),
-      owner: z.string().optional().describe("Owner name (partial match, case-insensitive)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
       try {
         const data = await client.search.vessels({
+          q: params.q,
+          filterEni: params.eni,
           filterName: params.name,
           filterImo: params.imo,
           filterMmsi: params.mmsi,
@@ -32,8 +34,6 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
           filterCallsign: params.callsign,
           filterYearBuiltMin: params.yearBuiltMin,
           filterYearBuiltMax: params.yearBuiltMax,
-          filterClassSociety: params.classSociety,
-          filterOwner: params.owner,
           paginationLimit: params.limit,
           paginationNextToken: params.nextToken,
         });
@@ -49,7 +49,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
     "Get detailed information about a specific vessel",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
     },
     async (params) => {
       try {
@@ -68,11 +68,13 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
     "Get the current position of a vessel (latitude, longitude, speed, heading)",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
+      sat: z.boolean().optional().describe("Fall back to a satellite position when no recent terrestrial one exists. Charged per call against a prepaid balance, so use it only when a stored position is genuinely insufficient."),
     },
     async (params) => {
       try {
         const data = await client.vessels.position(params.vesselId, {
+          filterSat: params.sat,
           filterIdType: params.idType,
         });
         return formatResult(data);
@@ -87,7 +89,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
     "Get the estimated time of arrival for a vessel",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
     },
     async (params) => {
       try {
@@ -102,50 +104,12 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
   );
 
   server.tool(
-    "get_vessel_classification",
-    "Get the classification details for a vessel (class society, surveys, hull info)",
-    {
-      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-    },
-    async (params) => {
-      try {
-        const data = await client.vessels.classification(params.vesselId, {
-          filterIdType: params.idType,
-        });
-        return formatResult(data);
-      } catch (error) {
-        return handleToolError(error);
-      }
-    },
-  );
-
-  server.tool(
-    "get_vessel_ownership",
-    "Get the ownership details for a vessel (owner, manager, operator)",
-    {
-      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-    },
-    async (params) => {
-      try {
-        const data = await client.vessels.ownership(params.vesselId, {
-          filterIdType: params.idType,
-        });
-        return formatResult(data);
-      } catch (error) {
-        return handleToolError(error);
-      }
-    },
-  );
-
-  server.tool(
     "get_vessel_emissions",
     "Get emissions data for a vessel (CO2, fuel consumption)",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-      limit: z.number().optional().describe("Max results per page"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -163,35 +127,12 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
   );
 
   server.tool(
-    "get_vessel_inspections",
-    "Get port state control inspections for a vessel",
-    {
-      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-      limit: z.number().optional().describe("Max results per page"),
-      nextToken: z.string().optional().describe("Pagination token from previous response"),
-    },
-    async (params) => {
-      try {
-        const data = await client.vessels.inspections(params.vesselId, {
-          filterIdType: params.idType,
-          paginationLimit: params.limit,
-          paginationNextToken: params.nextToken,
-        });
-        return formatResult(data);
-      } catch (error) {
-        return handleToolError(error);
-      }
-    },
-  );
-
-  server.tool(
     "get_vessel_casualties",
     "Get marine casualty records for a vessel",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-      limit: z.number().optional().describe("Max results per page"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {
@@ -209,34 +150,14 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
   );
 
   server.tool(
-    "get_vessel_inspection_detail",
-    "Get detailed information about a specific vessel inspection",
-    {
-      vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
-      detailId: z.string().describe("Inspection detail ID"),
-      idType: z.string().optional().describe("Identifier type: imo (default), mmsi, or vesselId"),
-    },
-    async (params) => {
-      try {
-        const data = await client.vessels.inspectionDetail(params.vesselId, params.detailId, {
-          filterIdType: params.idType,
-        });
-        return formatResult(data);
-      } catch (error) {
-        return handleToolError(error);
-      }
-    },
-  );
-
-  server.tool(
     "get_vessel_positions_batch",
     "Get positions for multiple vessels at once by MMSI or IMO numbers",
     {
       ids: z.string().describe("Comma-separated list of MMSI or IMO numbers"),
-      idType: z.string().optional().describe("Identifier type: imo (default) or mmsi"),
+      idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
       timeFrom: z.string().optional().describe("Start time filter in RFC3339 format (defaults to 2 hours ago)"),
       timeTo: z.string().optional().describe("End time filter in RFC3339 format (defaults to current time)"),
-      limit: z.number().optional().describe("Max results per page"),
+      limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
     async (params) => {

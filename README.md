@@ -21,11 +21,10 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 ## Features
 
-- **23 tools** covering vessels, ports, location search, emissions, and maritime safety
-- Vessel search, positions (single and batch), ETA, classification, ownership, emissions, inspections, and casualties
+- **19 tools** covering vessels, ports, location search, and emissions
+- Vessel search, positions (single and batch), ETA, emissions, and casualties
 - Port search, details, port events (arrivals/departures), and global port event search
 - Geographic vessel search (bounding box and radius)
-- NAVTEX maritime safety messages
 - Manual pagination to control API quota usage
 
 ## Hosted deployment
@@ -34,7 +33,7 @@ A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/vessel
 
 ## Quick Start
 
-No installation required — just configure your AI client with `npx`:
+No installation required. Configure your AI client with `npx`:
 
 ```json
 {
@@ -58,7 +57,7 @@ Add the JSON above to the config file for your client:
 |---|---|
 | Claude Desktop | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows) |
 | Cursor | `.cursor/mcp.json` or `~/.cursor/mcp.json` |
-| Claude Code | `.claude/settings.json` or `~/.claude/settings.json` |
+| Claude Code | `claude mcp add`, which writes `.mcp.json` in the project or `~/.claude.json` for user scope |
 | Windsurf | `~/.codeium/windsurf/mcp_config.json` |
 
 ## Tools
@@ -67,16 +66,12 @@ Add the JSON above to the config file for your client:
 
 | Tool | Description |
 |---|---|
-| `search_vessels` | Search vessels by name, IMO, MMSI, flag, type, callsign, year built, class society, or owner |
+| `search_vessels` | Search vessels by name, IMO, MMSI, flag, type, callsign, or year built |
 | `get_vessel` | Get detailed vessel information |
 | `get_vessel_position` | Get current vessel position (lat/lon, speed, heading) |
 | `get_vessel_eta` | Get vessel estimated time of arrival |
-| `get_vessel_classification` | Get classification details (class society, surveys, hull) |
-| `get_vessel_ownership` | Get ownership details (owner, manager, operator) |
 | `get_vessel_emissions` | Get emissions data (CO2, fuel consumption) |
-| `get_vessel_inspections` | Get port state control inspections |
 | `get_vessel_casualties` | Get marine casualty records |
-| `get_vessel_inspection_detail` | Get detailed information about a specific inspection |
 | `get_vessel_positions_batch` | Get positions for multiple vessels at once (with optional time range) |
 
 ### Port Tools
@@ -85,6 +80,7 @@ Add the JSON above to the config file for your client:
 |---|---|
 | `search_ports` | Search ports by name, country, type, size, region, harbor size, or harbor use |
 | `get_port` | Get port details by UN/LOCODE |
+| `get_port_inbound` | Get vessels inbound to a port within an ETA window |
 | `get_port_events` | Get arrivals/departures for a port |
 | `get_port_events_by_vessel` | Get port events for a vessel |
 | `list_port_events` | List port events globally with filters for time, country, port, vessel, or event type |
@@ -105,15 +101,10 @@ Add the JSON above to the config file for your client:
 | `get_vessels_in_area` | Find vessels in a bounding box (with optional time range) |
 | `get_vessels_in_radius` | Find vessels within a radius of a point (with optional time range) |
 
-### Safety Tools
-
-| Tool | Description |
-|---|---|
-| `get_navtex_messages` | Get NAVTEX maritime safety messages |
 
 ## Pagination
 
-All list endpoints support `limit` and `nextToken` parameters for manual pagination. When more results exist, the response includes a `nextToken` — pass it in the next call to get the next page.
+All list endpoints support `limit` and `nextToken` parameters for manual pagination. When more results exist, the response includes a `nextToken`. Pass it in the next call to get the next page.
 
 ## Development
 
@@ -135,6 +126,15 @@ npm run clean        # Remove build artifacts
 ```bash
 VESSELAPI_API_KEY=your-key npx @modelcontextprotocol/inspector node dist/index.js
 ```
+
+## Data Sources & Attribution
+
+Emissions and casualty data: © European Union. Source: European Maritime Safety Agency
+(EMSA): THETIS-MRV (EU MRV, Regulation (EU) 2015/757) and the European Marine Casualty
+Information Platform (EMCIP). Reused under the European Commission reuse notice
+(Commission Decision 2011/833/EU), which authorises reuse for commercial and
+non-commercial purposes with acknowledgement of the source. Data may be transformed and
+combined; EMSA does not endorse this service.
 
 ## License
 
