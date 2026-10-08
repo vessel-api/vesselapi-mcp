@@ -65,7 +65,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
 
   server.tool(
     "get_vessel_position",
-    "Get the current position of a vessel (latitude, longitude, speed, heading)",
+    "Get the latest stored position of a vessel (latitude, longitude, speed, heading, timestamp). Check the timestamp: the fix may be hours or days old, especially for a vessel away from the coast.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
@@ -86,7 +86,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
 
   server.tool(
     "get_vessel_eta",
-    "Get the estimated time of arrival for a vessel",
+    "Get the most recent ETA the vessel itself reported in its AIS voyage data. This is the declared ETA, not a prediction.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
@@ -105,7 +105,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
 
   server.tool(
     "get_vessel_emissions",
-    "Get emissions data for a vessel (CO2, fuel consumption)",
+    "Get EU MRV annual emissions reports for a vessel (CO2, fuel consumption). Only ships that report under EU MRV have data.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),

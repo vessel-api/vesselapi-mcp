@@ -3,6 +3,25 @@
 All notable changes to this server are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.1] - 2026-10-08
+
+Documentation only. No tool, parameter or response changed.
+
+### Changed
+
+- Tool descriptions now say what each endpoint actually returns and where its
+  limits are: `get_vessel_position` is the latest stored position, which may be
+  hours or days old; `get_vessel_eta` is the ETA the vessel last reported, not a
+  prediction; `get_vessel_emissions` and `list_emissions` are EU MRV reports;
+  the port event tools state the 2-hour default window and cover "all covered
+  ports" rather than "global"; `get_vessels_in_area` and `get_vessels_in_radius`
+  describe the time window (default 2 hours, at most 4) and the 4-degree
+  bounding box span; `get_port_inbound` describes its ETA window.
+
+### Removed
+
+- The README section on a third-party hosted deployment.
+
 ## [2.0.0] - 2026-08-13
 
 Vessel ownership, classification and inspection data, and NAVTEX messages were

@@ -23,13 +23,9 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that 
 
 - **19 tools** covering vessels, ports, location search, and emissions
 - Vessel search, positions (single and batch), ETA, emissions, and casualties
-- Port search, details, port events (arrivals/departures), and global port event search
+- Port search, details, port events (arrivals/departures), and port event search across all covered ports
 - Geographic vessel search (bounding box and radius)
 - Manual pagination to control API quota usage
-
-## Hosted deployment
-
-A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/vessel-api-vesselapi-mcp).
 
 ## Quick Start
 
@@ -68,9 +64,9 @@ Add the JSON above to the config file for your client:
 |---|---|
 | `search_vessels` | Search vessels by name, IMO, MMSI, flag, type, callsign, or year built |
 | `get_vessel` | Get detailed vessel information |
-| `get_vessel_position` | Get current vessel position (lat/lon, speed, heading) |
-| `get_vessel_eta` | Get vessel estimated time of arrival |
-| `get_vessel_emissions` | Get emissions data (CO2, fuel consumption) |
+| `get_vessel_position` | Get the latest stored vessel position (lat/lon, speed, heading, timestamp); it may be hours or days old |
+| `get_vessel_eta` | Get the ETA the vessel last reported (declared, not predicted) |
+| `get_vessel_emissions` | Get EU MRV emissions reports (CO2, fuel consumption) |
 | `get_vessel_casualties` | Get marine casualty records |
 | `get_vessel_positions_batch` | Get positions for multiple vessels at once (with optional time range) |
 
@@ -80,10 +76,10 @@ Add the JSON above to the config file for your client:
 |---|---|
 | `search_ports` | Search ports by name, country, type, size, region, harbor size, or harbor use |
 | `get_port` | Get port details by UN/LOCODE |
-| `get_port_inbound` | Get vessels inbound to a port within an ETA window |
-| `get_port_events` | Get arrivals/departures for a port |
-| `get_port_events_by_vessel` | Get port events for a vessel |
-| `list_port_events` | List port events globally with filters for time, country, port, vessel, or event type |
+| `get_port_inbound` | Get vessels reporting a port as their destination, within an ETA window |
+| `get_port_events` | Get arrivals/departures for a port (last 2 hours unless `timeFrom` is given) |
+| `get_port_events_by_vessel` | Get port events for a vessel (last 2 hours unless `timeFrom` is given) |
+| `list_port_events` | List port events across all covered ports, with filters for time, country, port, vessel, or event type |
 | `search_port_events_by_port` | Search port events by port name |
 | `search_port_events_by_vessel` | Search port events by vessel name |
 | `get_vessel_last_port_event` | Get the most recent port event for a vessel |
@@ -92,14 +88,14 @@ Add the JSON above to the config file for your client:
 
 | Tool | Description |
 |---|---|
-| `list_emissions` | List global vessel emissions data with optional year filter |
+| `list_emissions` | List EU MRV emissions reports, with an optional reporting-year filter |
 
 ### Location Tools
 
 | Tool | Description |
 |---|---|
-| `get_vessels_in_area` | Find vessels in a bounding box (with optional time range) |
-| `get_vessels_in_radius` | Find vessels within a radius of a point (with optional time range) |
+| `get_vessels_in_area` | Find vessels with an AIS position in a bounding box (default last 2 hours, at most 4 hours) |
+| `get_vessels_in_radius` | Find vessels with an AIS position within a radius of a point (default last 2 hours, at most 4 hours) |
 
 
 ## Pagination

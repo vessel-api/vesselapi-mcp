@@ -56,13 +56,13 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "get_port_inbound",
-    "Get vessels heading to a specific port within an ETA arrival window",
+    "Get vessels whose own reported destination is this port, with a declared ETA inside the arrival window. ETAs are reported by the vessels, not predicted.",
     {
       unlocode: z.string().describe("UN/LOCODE of the destination port (e.g. NLRTM for Rotterdam)"),
       etaFrom: z.string().optional().describe("Start of ETA arrival window (RFC3339). Omit to default to now."),
       etaTo: z.string().optional().describe("End of ETA arrival window (RFC3339). Omit to default to 72 hours ahead."),
-      timeFrom: z.string().optional().describe("AIS position time range start (RFC3339 format)"),
-      timeTo: z.string().optional().describe("AIS position time range end (RFC3339 format)"),
+      timeFrom: z.string().optional().describe("Only use reports received after this time, RFC3339. Defaults to 24 hours ago."),
+      timeTo: z.string().optional().describe("Only use reports received before this time, RFC3339. Defaults to now."),
       limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
@@ -110,14 +110,14 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "get_port_events_by_vessel",
-    "Get port events (arrivals/departures) for a specific vessel",
+    "Get port events (arrivals/departures) for a specific vessel. Covers only the last 2 hours unless timeFrom is given. Events are kept for 31 days.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
       eventType: z.enum(["arrival", "departure", "all"]).optional().describe("Filter by event type. Omit for both arrivals and departures"),
       sortOrder: z.enum(["asc", "desc"]).optional().describe("Sort order by timestamp"),
-      timeFrom: z.string().optional().describe("Start time (ISO 8601 format)"),
-      timeTo: z.string().optional().describe("End time (ISO 8601 format)"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Without it the service returns only the last 2 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now."),
       limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),
       nextToken: z.string().optional().describe("Pagination token from previous response"),
     },
@@ -141,10 +141,10 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "list_port_events",
-    "List port events (arrivals/departures) globally with optional filters for time, country, port, vessel, or event type",
+    "List port events (arrivals/departures) across all covered ports, with optional filters for time, country, port, vessel, or event type. Covers only the last 2 hours unless timeFrom is given. Events are kept for 31 days.",
     {
-      timeFrom: z.string().optional().describe("Start time (RFC3339 format)"),
-      timeTo: z.string().optional().describe("End time (RFC3339 format)"),
+      timeFrom: z.string().optional().describe("Start of the time window, RFC3339. Without it the service returns only the last 2 hours."),
+      timeTo: z.string().optional().describe("End of the time window, RFC3339. Defaults to now."),
       country: z.string().optional().describe("Filter by port country (case-insensitive)"),
       unlocode: z.string().optional().describe("Filter by port UN/LOCODE"),
       eventType: z.enum(["arrival", "departure", "all"]).optional().describe("Filter by event type. Omit for both arrivals and departures"),
@@ -246,7 +246,7 @@ export function registerPortTools(server: McpServer, client: VesselClient): void
 
   server.tool(
     "list_emissions",
-    "List global vessel emissions data with optional year filter",
+    "List EU MRV annual emissions reports (ships calling at EU and EEA ports), with an optional reporting-year filter",
     {
       period: z.number().optional().describe("Reporting year filter (e.g. 2024)"),
       limit: z.number().int().min(1).max(50).optional().describe("Results per page, 1 to 50. Defaults to 20."),

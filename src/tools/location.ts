@@ -6,7 +6,7 @@ import { formatResult, handleToolError } from "../errors.js";
 export function registerLocationTools(server: McpServer, client: VesselClient): void {
   server.tool(
     "get_vessels_in_area",
-    "Find all vessels within a rectangular bounding box (latitude/longitude)",
+    "Find vessels with an AIS position inside a rectangular bounding box during the time window (default the last 2 hours, at most 4 hours). The latitude span plus the longitude span may not exceed 4 degrees.",
     {
       latMin: z.number().describe("Southern boundary latitude"),
       latMax: z.number().describe("Northern boundary latitude"),
@@ -38,7 +38,7 @@ export function registerLocationTools(server: McpServer, client: VesselClient): 
 
   server.tool(
     "get_vessels_in_radius",
-    "Find all vessels within a radius of a point. The radius is in METRES, not nautical miles or kilometres.",
+    "Find vessels with an AIS position within a radius of a point during the time window (default the last 2 hours, at most 4 hours). The radius is in METRES, not nautical miles or kilometres.",
     {
       latitude: z.number().describe("Center latitude"),
       longitude: z.number().describe("Center longitude"),
