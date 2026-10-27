@@ -3,7 +3,39 @@
 All notable changes to this server are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
-## [2.0.2] - 2026-10-26
+## [2.1.0] - 2026-10-27
+
+### Added
+
+- `get_vessel_position` takes `satLookbackMinutes` (60 to 4800, default 180)
+  and `satMaxAgeMinutes` (15 to 4800, default 60, paid plans only). Both apply
+  only with `sat`. The first sets how old a satellite position may be and still
+  be returned. The second sets how old a stored position may be before a
+  satellite lookup is made.
+
+### Changed
+
+- `@modelcontextprotocol/sdk` is upgraded from 1.27.1 to 1.32.2, and the
+  dependency now requires at least 1.32.2. This clears the security alerts on
+  the SDK and on the HTTP packages it depends on (express, hono and others). The
+  server talks over stdio only. Apart from the new parameters, the tool list is
+  unchanged.
+- The `vesselapi` dependency now requires at least 2.1.0, the first version with
+  the satellite window parameters.
+- The API now returns `identity_match` in the position check only when it holds
+  a record for the vessel and an identifier can be compared. It also checks
+  every returned position for a suspected glitch, measured from the vessel's
+  previous clean report, so more positions can come back with
+  `suspected_glitch: true`.
+
+### Fixed
+
+- The `get_vessel_position` description said a separate `get_vessel_eta` call is
+  not needed. The position response omits `vesselEta` when no destination or ETA
+  is available, so the description now says the call is needed only when
+  `vesselEta` is missing.
+
+## [2.0.2] - 2026-10-27
 
 Documentation only. No tool, parameter or response changed.
 
