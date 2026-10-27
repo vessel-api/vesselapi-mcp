@@ -3,9 +3,11 @@ name: Publish
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   publish:
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -23,3 +25,34 @@ jobs:
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  mcp-registry:
+    needs: publish
+    if: always() && (needs.publish.result == 'success' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      MCP_PUBLISHER_VERSION: v1.8.1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check server.json matches package.json
+        run: |
+          pkg=$(node -p "require('./package.json').version")
+          srv=$(node -p "require('./server.json').version")
+          npkg=$(node -p "require('./server.json').packages[0].version")
+          if [ "$pkg" != "$srv" ] || [ "$pkg" != "$npkg" ]; then
+            echo "version mismatch: package.json $pkg, server.json $srv, server.json package $npkg"
+            exit 1
+          fi
+      - name: Install mcp-publisher
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$MCP_PUBLISHER_VERSION" -R modelcontextprotocol/registry \
+            -p 'mcp-publisher_linux_amd64.tar.gz' -p "registry_${MCP_PUBLISHER_VERSION#v}_checksums.txt"
+          grep ' mcp-publisher_linux_amd64.tar.gz$' "registry_${MCP_PUBLISHER_VERSION#v}_checksums.txt" | sha256sum -c -
+          tar -xzf mcp-publisher_linux_amd64.tar.gz mcp-publisher
+      - run: ./mcp-publisher login github-oidc
+      - run: ./mcp-publisher publish
