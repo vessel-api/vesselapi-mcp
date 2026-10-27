@@ -65,7 +65,7 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
 
   server.tool(
     "get_vessel_position",
-    "Get the latest stored position of a vessel (latitude, longitude, speed, heading, timestamp). Check the timestamp: the fix may be hours or days old, especially for a vessel away from the coast.",
+    "Get the latest stored position of a vessel (latitude, longitude, speed, heading, timestamp). Check the timestamp: the fix may be hours or days old, especially for a vessel away from the coast. The response also carries the vessel's particulars, the destination and ETA it last reported, and a check against its previous position (time and distance since then, implied speed and course, whether the identifiers match), so a separate get_vessel_eta call is not needed.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),

@@ -3,6 +3,17 @@
 All notable changes to this server are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.0.2] - 2026-10-26
+
+Documentation only. No tool, parameter or response changed.
+
+### Changed
+
+- The `get_vessel_position` description says that the response also carries the
+  vessel's particulars, its last reported destination and ETA, and a check
+  against its previous position, so a separate `get_vessel_eta` call is not
+  needed. The API added these to the position response on 25 October 2026.
+
 ## [2.0.1] - 2026-10-08
 
 Documentation only. No tool, parameter or response changed.
