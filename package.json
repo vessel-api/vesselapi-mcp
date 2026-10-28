@@ -1,6 +1,6 @@
 {
   "name": "vesselapi-mcp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "mcpName": "io.github.vessel-api/vesselapi-mcp",
   "description": "MCP server for the VesselAPI: maritime vessel tracking, port events and emissions",
   "license": "MIT",
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.2",
-    "vesselapi": "^2.1.0",
+    "vesselapi": "^2.2.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

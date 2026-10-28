@@ -3,6 +3,38 @@
 All notable changes to this server are documented here.
 This project follows [Semantic Versioning](https://semver.org/).
 
+## [2.2.0] - 2026-10-28
+
+### Added
+
+- `get_vessel_position` with `sat` now adds a line to the result saying what
+  the satellite lookup did: where the position came from, whether a satellite
+  credit was charged, the balance left, and the lookback and stored-position age
+  limit applied. The API reports this in response headers, which did not reach
+  the model before, so a model could not tell whether it had spent a credit.
+  When the balance is empty the line says the lookup was skipped and nothing was
+  charged.
+
+### Changed
+
+- The `sat` description no longer says "Charged per call". A credit is charged
+  when a satellite fix is returned, never twice for the same fix on one
+  account, and nothing when a terrestrial position is returned.
+- The 429 message no longer says retrying later may succeed. The SDK has already
+  retried with backoff by the time the model sees it, and the API slows down
+  keys that keep calling while limited, so the message now tells the model not
+  to call again and to tell the user. The 5xx message says automatic retries
+  were made.
+- The `vesselapi` dependency now requires at least 2.2.0, for
+  `positionWithSatelliteInfo()`.
+
+### Fixed
+
+- The `get_vessel_position` description says that `minutes_since_previous` is
+  the gap between the previous report and the returned position, not the age
+  of the returned position. A model had read a 3-minute gap as a fresh fix when
+  the fix was a day old.
+
 ## [2.1.0] - 2026-10-27
 
 ### Added

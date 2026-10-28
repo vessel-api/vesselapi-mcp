@@ -1,7 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { VesselClient } from "vesselapi";
 import { z } from "zod";
-import { formatResult, handleToolError } from "../errors.js";
+import { formatResult, formatSatelliteInfo, handleToolError } from "../errors.js";
 
 export function registerVesselTools(server: McpServer, client: VesselClient): void {
   server.tool(
@@ -65,23 +65,25 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
 
   server.tool(
     "get_vessel_position",
-    "Get the latest stored position of a vessel (latitude, longitude, speed, heading, timestamp). Check the timestamp: the fix may be hours or days old, especially for a vessel away from the coast. The response also carries the vessel's particulars, the destination and ETA it last reported, and a check against its previous position (time and distance since then, implied speed and course, whether the identifiers match). A separate get_vessel_eta call is needed only when vesselEta is missing.",
+    "Get the latest stored position of a vessel (latitude, longitude, speed, heading, timestamp). Check the timestamp: the fix may be hours or days old, especially for a vessel away from the coast. The response also carries the vessel's particulars, the destination and ETA it last reported, and a check against its previous position (minutes and distance between that report and this one, implied speed and course, whether the identifiers match). minutes_since_previous is not the age of this position; read vesselPosition.timestamp for that. A separate get_vessel_eta call is needed only when vesselEta is missing.",
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
-      sat: z.boolean().optional().describe("Fall back to a satellite position when no recent terrestrial one exists. Charged per call against a prepaid balance, so use it only when a stored position is insufficient."),
+      sat: z.boolean().optional().describe("Fall back to a satellite position when no recent terrestrial one exists. Draws on a prepaid satellite credit balance: one credit when a satellite fix is returned, never twice for the same fix on this account, and nothing when a terrestrial position is returned. The result says whether a credit was charged. Use it only when a stored position is insufficient."),
       satLookbackMinutes: z.number().int().min(60).max(4800).optional().describe("Only with sat: how old a satellite position may be and still be returned, 60 to 4800 minutes. Defaults to 180."),
       satMaxAgeMinutes: z.number().int().min(15).max(4800).optional().describe("Only with sat: how old a stored position may be before a satellite lookup is made, 15 to 4800 minutes. Defaults to 60. Paid plans only."),
     },
     async (params) => {
       try {
-        const data = await client.vessels.position(params.vesselId, {
+        const { data, satellite } = await client.vessels.positionWithSatelliteInfo(params.vesselId, {
           filterSat: params.sat,
           filterSatLookbackMinutes: params.satLookbackMinutes,
           filterSatMaxAgeMinutes: params.satMaxAgeMinutes,
           filterIdType: params.idType,
         });
-        return formatResult(data);
+        const result = formatResult(data);
+        if (satellite) result.content.push({ type: "text", text: formatSatelliteInfo(satellite) });
+        return result;
       } catch (error) {
         return handleToolError(error);
       }

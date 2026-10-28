@@ -7,11 +7,31 @@ import {
   VesselRateLimitError,
   VesselServerError,
 } from "vesselapi";
+import type { SatelliteInfo } from "vesselapi";
 
 export function formatResult(data: unknown): { content: { type: "text"; text: string }[] } {
   return {
     content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
   };
+}
+
+/**
+ * One line telling the model what a satellite lookup did. The API reports this in
+ * response headers, which never reach the model otherwise, so without it a model
+ * told that lookups cost credits cannot tell whether it spent one.
+ */
+export function formatSatelliteInfo(info: SatelliteInfo): string {
+  if (info.status === "insufficient_credits") {
+    return "Satellite lookup skipped: the satellite credit balance is empty, so the stored position was returned and nothing was charged.";
+  }
+  const parts = [
+    `position source ${info.dataSource}`,
+    info.creditCharged ? "1 satellite credit charged" : "no satellite credit charged",
+  ];
+  if (info.creditsRemaining !== undefined) parts.push(`${info.creditsRemaining} satellite credits remaining`);
+  if (info.lookbackMinutes !== undefined) parts.push(`lookback ${info.lookbackMinutes} min`);
+  if (info.maxAgeMinutes !== undefined) parts.push(`stored-position age limit ${info.maxAgeMinutes} min`);
+  return `Satellite lookup: ${parts.join("; ")}.`;
 }
 
 /**
@@ -42,9 +62,14 @@ export function handleToolError(error: unknown): { isError: true; content: { typ
   } else if (error instanceof VesselNotFoundError) {
     message = `Resource not found. Verify the ID or parameters. ${error.message}`;
   } else if (error instanceof VesselRateLimitError) {
-    message = "Rate limit exceeded. Retrying later may succeed; reduce request frequency.";
+    // The SDK has already retried with backoff before this error surfaces, and the
+    // API slows down keys that keep calling while over quota.
+    message =
+      `Rate limit or monthly quota reached: ${error.message}. The client has already retried ` +
+      "with backoff, so do not call the API again now; tell the user. Repeated requests while " +
+      "limited are slowed down further.";
   } else if (error instanceof VesselServerError) {
-    message = `Server error, retrying later may succeed: ${error.message}`;
+    message = `Server error after automatic retries, trying again later may succeed: ${error.message}`;
   } else if (error instanceof VesselAPIError) {
     // Remaining 4xx: the request itself is wrong. Name the code so the model can
     // tell an unparseable time range from an out-of-range coordinate.
