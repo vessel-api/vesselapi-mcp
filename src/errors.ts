@@ -19,6 +19,9 @@ export function formatResult(data: unknown): { content: { type: "text"; text: st
  * One line telling the model what a satellite lookup did. The API reports this in
  * response headers, which never reach the model otherwise, so without it a model
  * told that lookups cost credits cannot tell whether it spent one.
+ *
+ * @deprecated The satellite fallback is withdrawn in its current form. From the
+ * cutoff date the API ignores `filter.sat` and no credit is charged.
  */
 export function formatSatelliteInfo(info: SatelliteInfo): string {
   if (info.status === "insufficient_credits") {
@@ -51,8 +54,8 @@ export function handleToolError(error: unknown): { isError: true; content: { typ
   } else if (error instanceof VesselPaymentRequiredError) {
     message =
       "Out of satellite credits, and no stored position was available to fall back on. " +
-      "Retry without the satellite option to use stored data, or top up the balance at " +
-      "https://dashboard.vesselapi.com. Retrying the same request will not help.";
+      "Retry without the satellite option to use stored data. The satellite option is deprecated " +
+      "and withdrawn in its current form. Retrying the same request will not help.";
   } else if (error instanceof VesselForbiddenError) {
     message =
       error.code === "feature_not_available"

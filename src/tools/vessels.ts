@@ -69,9 +69,9 @@ export function registerVesselTools(server: McpServer, client: VesselClient): vo
     {
       vesselId: z.string().describe("Vessel identifier (IMO number by default)"),
       idType: z.enum(["imo", "mmsi"]).optional().describe("Identifier type: imo (default) or mmsi"),
-      sat: z.boolean().optional().describe("Fall back to a satellite position when no recent terrestrial one exists. Draws on a prepaid satellite credit balance: one credit when a satellite fix is returned, never twice for the same fix on this account, and nothing when a terrestrial position is returned. The result says whether a credit was charged. Use it only when a stored position is insufficient."),
-      satLookbackMinutes: z.number().int().min(60).max(4800).optional().describe("Only with sat: how old a satellite position may be and still be returned, 60 to 4800 minutes. Defaults to 180."),
-      satMaxAgeMinutes: z.number().int().min(15).max(4800).optional().describe("Only with sat: how old a stored position may be before a satellite lookup is made, 15 to 4800 minutes. Defaults to 60. Paid plans only."),
+      sat: z.boolean().optional().describe("Deprecated: the satellite fallback is withdrawn in its current form. From the cutoff date this option is accepted and ignored, and no credit is charged. Until then: fall back to a satellite position when no recent terrestrial one exists. Draws on a prepaid satellite credit balance: one credit when a satellite fix is returned, never twice for the same fix on this account, and nothing when a terrestrial position is returned. The result says whether a credit was charged. Use it only when a stored position is insufficient."),
+      satLookbackMinutes: z.number().int().min(60).max(4800).optional().describe("Only with sat: how old a satellite position may be and still be returned, 60 to 4800 minutes. Defaults to 180. Deprecated: the satellite fallback is withdrawn in its current form. From the cutoff date this option is accepted and ignored, and no credit is charged."),
+      satMaxAgeMinutes: z.number().int().min(15).max(4800).optional().describe("Only with sat: how old a stored position may be before a satellite lookup is made, 15 to 4800 minutes. Defaults to 60. Paid plans only. Deprecated: the satellite fallback is withdrawn in its current form. From the cutoff date this option is accepted and ignored, and no credit is charged."),
     },
     async (params) => {
       try {
