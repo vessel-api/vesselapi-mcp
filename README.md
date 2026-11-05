@@ -11,6 +11,8 @@
 
 An [MCP (Model Context Protocol)](https://modelcontextprotocol.io/) server that exposes maritime data from the [VesselAPI](https://vesselapi.com) to AI assistants like Claude Desktop, Cursor, Windsurf, and Claude Code.
 
+Server page: [vesselapi.com/mcp-server](https://vesselapi.com/mcp-server)
+
 ## Prerequisites
 
 1. Sign up at [dashboard.vesselapi.com](https://dashboard.vesselapi.com)
@@ -123,14 +125,9 @@ npm run clean        # Remove build artifacts
 VESSELAPI_API_KEY=your-key npx @modelcontextprotocol/inspector node dist/index.js
 ```
 
-## Data Sources & Attribution
+## Attribution
 
-Emissions and casualty data: © European Union. Source: European Maritime Safety Agency
-(EMSA): THETIS-MRV (EU MRV, Regulation (EU) 2015/757) and the European Marine Casualty
-Information Platform (EMCIP). Reused under the European Commission reuse notice
-(Commission Decision 2011/833/EU), which authorises reuse for commercial and
-non-commercial purposes with acknowledgement of the source. Data may be transformed and
-combined; EMSA does not endorse this service.
+Data attribution is listed at https://vesselapi.com/disclaimer#sources.
 
 ## License
 

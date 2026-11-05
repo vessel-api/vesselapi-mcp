@@ -15,6 +15,7 @@
   },
   "keywords": [
     "mcp",
+    "mcp-server",
     "model-context-protocol",
     "vesselapi",
     "maritime",
@@ -22,6 +23,7 @@
     "shipping",
     "ais",
     "vessel-tracking",
+    "ship-tracking",
     "port-events",
     "emissions"
   ],
